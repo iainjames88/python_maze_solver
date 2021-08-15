@@ -15,6 +15,7 @@ CELL_KEYS = {
     0: ".",
     1: "S",
     2: "E",
+    3: "o",
     9: "Y"
 }
 
@@ -33,13 +34,10 @@ class Node:
         self.parent = parent
 
 
-def print_maze(maze, current_node):
-    for i, row in enumerate(maze):
-        for j, cell in enumerate(maze[i]):
-            if i == current_node.row and j == current_node.cell:
-                print("o", end="")
-            else:
-                print(CELL_KEYS[cell], end="")
+def print_maze(maze):
+    for row in maze:
+        for cell in row:
+            print(CELL_KEYS[cell], end="")
         print()
     print()
 
@@ -70,6 +68,8 @@ def backtrack(maze, current_node):
         path.append(current_node.parent)
         current_node = current_node.parent
 
+    maze[current_node.row][current_node.cell] = 9
+
     return path
 
 
@@ -80,15 +80,21 @@ if __name__ == "__main__":
     current_node = start_node = Node(0, 0, None)
     q.append(current_node)
 
+    print_maze(maze)
+
     while len(q) > 0:
         current_node = q.popleft()
+        maze[current_node.row][current_node.cell] = 3
         print_maze(maze)
 
-        if maze[current_node.row][current_node.cell] == 2:
-            backtrack(maze, current_node)
-            print_maze(maze)
-        else:
-            for neighbour in get_neighbours(maze, current_node):
+        for neighbour in get_neighbours(maze, current_node):
+            if maze[neighbour.row][neighbour.cell] == 2:
+                backtrack(maze, neighbour)
+                print_maze(maze)
+                import sys;
+
+                sys.exit(0)
+            else:
                 q.append(neighbour)
-            maze[current_node.row][current_node.cell] = -2
-            visited.append(current_node)
+        maze[current_node.row][current_node.cell] = -2
+        visited.append(current_node)
