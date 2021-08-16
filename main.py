@@ -80,7 +80,6 @@ def backtrack(maze, current_node):
 
 
 if __name__ == "__main__":
-    # TODO there is a bug here where a node can be on the queue multiple times
     init()  # for colorama
 
     q = collections.deque()
