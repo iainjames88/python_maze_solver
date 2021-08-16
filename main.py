@@ -1,4 +1,9 @@
 import collections
+import sys
+
+from colorama import init, Fore
+import time
+import os
 
 maze = [
     [1, 0, -1, -1, -1, -1, -1, -1, -1, -1],
@@ -6,25 +11,20 @@ maze = [
     [-1, 0, -1, -1, -1, 0, 0, -1, 0, -1],
     [-1, 0, -1, 0, 0, 0, 0, -1, 0, -1],
     [-1, 0, -1, 0, 0, -1, 0, -1, 0, -1],
-    [-1, -1, -1, -1, 2, -1, -1, -1, -1, -1]
+    [-1, -1, -1, -1, 2, -1, -1, -1, -1, -1],
 ]
 
 CELL_KEYS = {
-    -2: 'x',
-    -1: "#",
-    0: ".",
-    1: "S",
-    2: "E",
-    3: "o",
-    9: "Y"
+    -2: Fore.BLUE,
+    -1: Fore.BLACK,
+    0: Fore.WHITE,
+    1: Fore.LIGHTGREEN_EX,
+    2: Fore.LIGHTRED_EX,
+    3: Fore.LIGHTGREEN_EX,
+    9: Fore.YELLOW,
 }
 
-DIRECTIONS = {
-    (-1, 0),
-    (0, 1),
-    (1, 0),
-    (0, -1)
-}
+DIRECTIONS = {(-1, 0), (0, 1), (1, 0), (0, -1)}
 
 
 class Node:
@@ -35,9 +35,11 @@ class Node:
 
 
 def print_maze(maze):
+    os.system("clear")
+
     for row in maze:
         for cell in row:
-            print(CELL_KEYS[cell], end="")
+            print(f"{CELL_KEYS[cell]} █", end="")
         print()
     print()
 
@@ -49,7 +51,12 @@ def get_neighbours(maze, current_node):
         row = current_node.row + direction[0]
         cell = current_node.cell + direction[1]
 
-        if row < 0 or row >= len(maze) or cell < 0 or cell >= len(maze[current_node.row]):
+        if (
+            row < 0
+            or row >= len(maze)
+            or cell < 0
+            or cell >= len(maze[current_node.row])
+        ):
             continue
 
         if maze[row][cell] < 0:
@@ -74,13 +81,14 @@ def backtrack(maze, current_node):
 
 
 if __name__ == "__main__":
+    # TODO there is a bug here where a node can be on the queue multiple times
+    init()  # for colorama
+
     q = collections.deque()
     visited = []
 
     current_node = start_node = Node(0, 0, None)
     q.append(current_node)
-
-    print_maze(maze)
 
     while len(q) > 0:
         current_node = q.popleft()
@@ -91,10 +99,9 @@ if __name__ == "__main__":
             if maze[neighbour.row][neighbour.cell] == 2:
                 backtrack(maze, neighbour)
                 print_maze(maze)
-                import sys;
-
                 sys.exit(0)
             else:
                 q.append(neighbour)
         maze[current_node.row][current_node.cell] = -2
         visited.append(current_node)
+        time.sleep(1)
