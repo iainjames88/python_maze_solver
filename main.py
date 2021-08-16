@@ -15,13 +15,12 @@ maze = [
 ]
 
 CELL_KEYS = {
-    -2: Fore.BLUE,
-    -1: Fore.BLACK,
-    0: Fore.WHITE,
-    1: Fore.LIGHTGREEN_EX,
-    2: Fore.LIGHTRED_EX,
-    3: Fore.LIGHTGREEN_EX,
-    9: Fore.YELLOW,
+    -2: Fore.BLUE,  # visited
+    -1: Fore.BLACK,  # wall
+    0: Fore.WHITE,  # empty
+    1: Fore.LIGHTGREEN_EX,  # current node
+    2: Fore.LIGHTRED_EX,  # target node
+    3: Fore.YELLOW,  # path node
 }
 
 DIRECTIONS = {(-1, 0), (0, 1), (1, 0), (0, -1)}
@@ -71,11 +70,11 @@ def backtrack(maze, current_node):
     path = [current_node]
 
     while current_node.parent:
-        maze[current_node.row][current_node.cell] = 9
+        maze[current_node.row][current_node.cell] = 3
         path.append(current_node.parent)
         current_node = current_node.parent
 
-    maze[current_node.row][current_node.cell] = 9
+    maze[current_node.row][current_node.cell] = 3
 
     return path
 
@@ -85,14 +84,13 @@ if __name__ == "__main__":
     init()  # for colorama
 
     q = collections.deque()
-    visited = []
 
-    current_node = start_node = Node(0, 0, None)
+    current_node = Node(0, 0, None)
     q.append(current_node)
 
     while len(q) > 0:
         current_node = q.popleft()
-        maze[current_node.row][current_node.cell] = 3
+        maze[current_node.row][current_node.cell] = 1
         print_maze(maze)
 
         for neighbour in get_neighbours(maze, current_node):
@@ -102,6 +100,8 @@ if __name__ == "__main__":
                 sys.exit(0)
             else:
                 q.append(neighbour)
+                maze[neighbour.row][neighbour.cell] = -2
+                print_maze(maze)
+
         maze[current_node.row][current_node.cell] = -2
-        visited.append(current_node)
         time.sleep(1)
