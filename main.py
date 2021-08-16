@@ -1,18 +1,10 @@
+import argparse
 import collections
 import sys
 
 from colorama import init, Fore
 import time
 import os
-
-maze = [
-    [1, 0, -1, -1, -1, -1, -1, -1, -1, -1],
-    [-1, 0, 0, 0, 0, 0, 0, 0, 0, -1],
-    [-1, 0, -1, -1, -1, 0, 0, -1, 0, -1],
-    [-1, 0, -1, 0, 0, 0, 0, -1, 0, -1],
-    [-1, 0, -1, 0, 0, -1, 0, -1, 0, -1],
-    [-1, -1, -1, -1, 2, -1, -1, -1, -1, -1],
-]
 
 CELL_KEYS = {
     -2: Fore.BLUE,  # visited
@@ -31,6 +23,10 @@ class Node:
         self.row = row
         self.cell = cell
         self.parent = parent
+
+
+def read_maze(file):
+    return [[int(n) for n in line.split(" ")] for line in file]
 
 
 def print_maze(maze):
@@ -82,6 +78,13 @@ def backtrack(maze, current_node):
 if __name__ == "__main__":
     init()  # for colorama
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("maze_file", type=argparse.FileType("r"))
+    parser.add_argument("--speed", type=float, help="delay in seconds; defaults to 0.3", default=0.3)
+
+    args = parser.parse_args()
+    maze = read_maze(args.maze_file)
+
     q = collections.deque()
 
     current_node = Node(0, 0, None)
@@ -103,4 +106,4 @@ if __name__ == "__main__":
                 print_maze(maze)
 
         maze[current_node.row][current_node.cell] = -2
-        time.sleep(1)
+        time.sleep(args.speed)
