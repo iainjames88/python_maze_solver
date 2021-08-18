@@ -7,7 +7,8 @@ import time
 import os
 
 CELL_KEYS = {
-    -2: Fore.BLUE,  # visited
+    -3: Fore.BLUE,  # visitd
+    -2: Fore.CYAN,  # queued
     -1: Fore.BLACK,  # wall
     0: Fore.WHITE,  # empty
     1: Fore.LIGHTGREEN_EX,  # current node
@@ -115,5 +116,5 @@ if __name__ == "__main__":
                 maze[neighbour.row][neighbour.cell] = -2
                 print_maze(maze)
 
-        maze[current_node.row][current_node.cell] = -2
+        maze[current_node.row][current_node.cell] = -3
         time.sleep(args.speed)
