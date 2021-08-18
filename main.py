@@ -92,7 +92,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("maze_file", type=argparse.FileType("r"))
-    parser.add_argument("--speed", type=float, help="delay in seconds; defaults to 0.3", default=0.3)
+    parser.add_argument(
+        "--speed", type=float, help="delay in seconds; defaults to 0.3", default=0.3
+    )
 
     args = parser.parse_args()
     start_node, maze = read_maze(args.maze_file)
