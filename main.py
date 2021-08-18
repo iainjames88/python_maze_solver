@@ -26,7 +26,18 @@ class Node:
 
 
 def read_maze(file):
-    return [[int(n) for n in line.split(" ")] for line in file]
+    start_node = None
+    maze = []
+
+    for i, line in enumerate(file):
+        row = []
+        for j, char in enumerate(line.split()):
+            if char == "1":
+                start_node = Node(i, j, None)
+            row.append(int(char))
+        maze.append(row)
+
+    return start_node, maze
 
 
 def print_maze(maze):
@@ -83,12 +94,11 @@ if __name__ == "__main__":
     parser.add_argument("--speed", type=float, help="delay in seconds; defaults to 0.3", default=0.3)
 
     args = parser.parse_args()
-    maze = read_maze(args.maze_file)
+    start_node, maze = read_maze(args.maze_file)
 
     q = collections.deque()
 
-    current_node = Node(0, 0, None)
-    q.append(current_node)
+    q.append(start_node)
 
     while len(q) > 0:
         current_node = q.popleft()
