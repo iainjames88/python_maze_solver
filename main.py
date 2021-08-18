@@ -7,7 +7,7 @@ import time
 import os
 
 CELL_KEYS = {
-    -3: Fore.BLUE,  # visitd
+    -3: Fore.BLUE,  # visited
     -2: Fore.CYAN,  # queued
     -1: Fore.BLACK,  # wall
     0: Fore.WHITE,  # empty
