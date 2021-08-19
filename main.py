@@ -1,10 +1,9 @@
 import argparse
 import collections
-import sys
+import os
+import time
 
 from colorama import init, Fore
-import time
-import os
 
 CELL_KEYS = {
     -3: Fore.BLUE,  # visited
@@ -38,7 +37,7 @@ def read_maze(file):
             row.append(int(char))
         maze.append(row)
 
-    return start_node, maze
+    return maze, start_node
 
 
 def print_maze(maze):
@@ -87,36 +86,95 @@ def backtrack(maze, current_node):
     return path
 
 
+def bfs(maze, current_node):
+    """
+    Iteratively solve the maze by adding the current nodes neighbours to a FIFO queue then enumerating the queue and
+    repeating the process.
+
+    Nodes keep track of their parent node i.e., the node that discovered them. Once the target
+    node is reached backtrack by visiting each nodes' parent until a node with no parent (the starting node) is found
+
+    :return: a generator function that yields the maze after each update
+    """
+    q = collections.deque()
+
+    q.append(current_node)
+
+    while len(q) > 0:
+        current_node = q.popleft()
+        maze[current_node.row][current_node.cell] = 1
+        yield maze
+
+        for neighbour in get_neighbours(maze, current_node):
+            if maze[neighbour.row][neighbour.cell] == 2:
+                backtrack(maze, neighbour)
+                yield maze
+                return
+            else:
+                q.append(neighbour)
+                maze[neighbour.row][neighbour.cell] = -2
+
+        yield maze
+        maze[current_node.row][current_node.cell] = -3
+        time.sleep(args.speed)
+
+
+def dfs(maze, current_node):
+    """
+    Iteratively solve the maze by adding the current nodes neighbours to a LIFO queue then enumerating the queue and
+    repeating the process.
+
+    Nodes keep track of their parent node i.e., the node that discovered them. Once the target
+    node is reached backtrack by visiting each nodes' parent until a node with no parent (the starting node) is found
+
+    :return: a generator function that yields the maze after each update
+    """
+
+    q = collections.deque()
+
+    q.append(current_node)
+
+    while len(q) > 0:
+        current_node = q.pop()
+        maze[current_node.row][current_node.cell] = 1
+        yield maze
+
+        for neighbour in get_neighbours(maze, current_node):
+            if maze[neighbour.row][neighbour.cell] == 2:
+                backtrack(maze, neighbour)
+                yield maze
+                return
+            else:
+                q.append(neighbour)
+                maze[neighbour.row][neighbour.cell] = -2
+
+        yield maze
+        maze[current_node.row][current_node.cell] = -3
+
+
+def main(maze_file, algorithm, speed):
+    maze, start_node = read_maze(maze_file)
+
+    if algorithm == "bfs":
+        for iteration in bfs(maze, start_node):
+            print_maze(iteration)
+            time.sleep(speed)
+    elif algorithm == "dfs":
+        for iteration in dfs(maze, start_node):
+            print_maze(iteration)
+            time.sleep(speed)
+
+
 if __name__ == "__main__":
     init()  # for colorama
 
     parser = argparse.ArgumentParser()
     parser.add_argument("maze_file", type=argparse.FileType("r"))
+    parser.add_argument("algorithm", type=str, choices=["bfs", "dfs"])
     parser.add_argument(
         "--speed", type=float, help="delay in seconds; defaults to 0.3", default=0.3
     )
 
     args = parser.parse_args()
-    start_node, maze = read_maze(args.maze_file)
 
-    q = collections.deque()
-
-    q.append(start_node)
-
-    while len(q) > 0:
-        current_node = q.popleft()
-        maze[current_node.row][current_node.cell] = 1
-        print_maze(maze)
-
-        for neighbour in get_neighbours(maze, current_node):
-            if maze[neighbour.row][neighbour.cell] == 2:
-                backtrack(maze, neighbour)
-                print_maze(maze)
-                sys.exit(0)
-            else:
-                q.append(neighbour)
-                maze[neighbour.row][neighbour.cell] = -2
-                print_maze(maze)
-
-        maze[current_node.row][current_node.cell] = -3
-        time.sleep(args.speed)
+    main(args.maze_file, args.algorithm, args.speed)
